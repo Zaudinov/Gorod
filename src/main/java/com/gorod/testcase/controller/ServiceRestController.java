@@ -4,6 +4,7 @@ import com.gorod.testcase.domain.Service;
 import com.gorod.testcase.domain.Subscriber;
 import com.gorod.testcase.repository.ServiceRepository;
 import com.gorod.testcase.repository.SubscriberRepository;
+import com.gorod.testcase.repository.projections.ServiceWithoutChildren;
 import com.gorod.testcase.service.SubscriberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -39,10 +40,10 @@ public class ServiceRestController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Service> getServiceById(@PathVariable("id") int id){
-        Service foundService;
+    public ResponseEntity<ServiceWithoutChildren> getServiceById(@PathVariable("id") int id){
+        ServiceWithoutChildren foundService;
         try{
-            foundService = serviceRepository.findById(id).get();
+            foundService = serviceRepository.getServiceById(id);
         }catch (NoSuchElementException e){
             return ResponseEntity.notFound().build();
         }

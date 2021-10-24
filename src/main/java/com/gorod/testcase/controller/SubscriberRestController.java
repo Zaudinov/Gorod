@@ -3,6 +3,7 @@ package com.gorod.testcase.controller;
 import com.gorod.testcase.domain.Subscriber;
 import com.gorod.testcase.repository.ServiceRepository;
 import com.gorod.testcase.repository.SubscriberRepository;
+import com.gorod.testcase.repository.projections.SubscriberView;
 import com.gorod.testcase.service.SubscriberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/subscriber")
@@ -30,10 +32,10 @@ public class SubscriberRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Subscriber> getSubscriberById(@PathVariable("id") Long id){
-        Subscriber foundSubscriber;
+    public ResponseEntity<SubscriberView> getSubscriberById(@PathVariable("id") Long id){
+        SubscriberView foundSubscriber;
         try{
-            foundSubscriber = subscriberService.read(id);
+            foundSubscriber = subscriberService.getSubscriberById(id);
         }catch (NoSuchElementException e){
             return ResponseEntity.notFound().build();
         }
