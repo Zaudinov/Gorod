@@ -2,6 +2,8 @@ package com.gorod.testcase.domain;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "subscriber")
@@ -18,8 +20,9 @@ public class Subscriber {
     private String account;
 
 
-//    @OneToMany(mappedBy = "subscriber")
-//    private List<Service> services;
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "subscriber_service", joinColumns = @JoinColumn(name = "subscriber_id"), inverseJoinColumns = @JoinColumn(name = "service_id"))
+    private Set<Service> services;
 
     public Subscriber() {
     }
@@ -52,11 +55,26 @@ public class Subscriber {
         this.fio = fio;
     }
 
-//    public List<Service> getServices() {
-//        return services;
-//    }
-//
-//    public void setServices(List<Service> services) {
-//        this.services = services;
-//    }
+    public Set<Service> getServices() {
+        return services;
+    }
+
+    public void setServices(Set<Service> services) {
+        this.services = services;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Subscriber that = (Subscriber) o;
+        return id.equals(that.id) &&
+                fio.equals(that.fio) &&
+                account.equals(that.account);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, fio, account);
+    }
 }

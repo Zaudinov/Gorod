@@ -1,11 +1,12 @@
 package com.gorod.testcase.domain;
 
 import javax.persistence.*;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "service")
-@SecondaryTable(name="service_relations")
 public class Service {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -14,17 +15,16 @@ public class Service {
 
     private String name;
 
-    @Column(table = "service_relations", name = "child_id")
-    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER)
-    private List<Service> children;
 
-    @ManyToOne
-    @JoinColumn
+    @ManyToOne()
+    @JoinColumn(name = "parent_id")
     private Service parent;
 
-    @ManyToOne
-    @JoinColumn(name="subscriber_id")
-    private Subscriber subscriber;
+//    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER)
+//    private Set<Service> children;
+
+//    @ManyToMany(mappedBy = "services")
+//    private Set<Subscriber> subscribers;
 
     public Service(int id, String name) {
         this.id = id;
@@ -34,20 +34,14 @@ public class Service {
     public Service() {
     }
 
-    public Subscriber getSubscriber() {
-        return subscriber;
-    }
 
-    public void setSubscriber(Subscriber subscriber) {
-        this.subscriber = subscriber;
-    }
 
     @Override
     public String toString() {
         return "Service{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", children=" + children +
+                ", children=" +
                 ", parent=" + parent +
                 '}';
     }
@@ -68,13 +62,13 @@ public class Service {
         this.name = name;
     }
 
-    public List<Service> getChildren() {
-        return children;
-    }
-
-    public void setChildren(List<Service> children) {
-        this.children = children;
-    }
+//    public Set<Service> getChildren() {
+//        return Collections.unmodifiableSet(this.children);
+//    }
+//
+//    public void setChildren(Set<Service> children) {
+//        this.children = children;
+//    }
 
     public Service getParent() {
         return parent;
@@ -83,4 +77,14 @@ public class Service {
     public void setParent(Service parent) {
         this.parent = parent;
     }
+
+//    public Set<Subscriber> getSubscribers() {
+//        return subscribers;
+//    }
+//
+//    public void setSubscribers(Set<Subscriber> subscribers) {
+//        this.subscribers = subscribers;
+//    }
+
+
 }
