@@ -24,8 +24,10 @@ public class ServiceRestController {
     ServiceRepository serviceRepository;
 
     @GetMapping
-    public Iterable<Service> getAllServices(){
-        return serviceRepository.findAll();
+    public Iterable<Service> getHierarhy(){
+        Iterable<Service> all = serviceRepository.findByParent(null);
+
+        return all;
     }
 
     @GetMapping("/{id}")

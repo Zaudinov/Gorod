@@ -1,8 +1,6 @@
 package com.gorod.testcase.domain;
 
 import javax.persistence.*;
-import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -15,16 +13,13 @@ public class Service {
 
     private String name;
 
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name="parent_id", referencedColumnName="service_id")
+    private Set<Service> children;
 
-    @ManyToOne()
-    @JoinColumn(name = "parent_id")
-    private Service parent;
+    @Column(name="parent_id", nullable = true)
+    private Integer parent;
 
-//    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER)
-//    private Set<Service> children;
-
-//    @ManyToMany(mappedBy = "services")
-//    private Set<Subscriber> subscribers;
 
     public Service(int id, String name) {
         this.id = id;
@@ -34,17 +29,14 @@ public class Service {
     public Service() {
     }
 
-
-
-    @Override
-    public String toString() {
-        return "Service{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", children=" +
-                ", parent=" + parent +
-                '}';
+    public Set<Service> getChildren() {
+        return children;
     }
+
+    public void setChildren(Set<Service> children) {
+        this.children = children;
+    }
+
 
     public int getId() {
         return id;
@@ -62,29 +54,11 @@ public class Service {
         this.name = name;
     }
 
-//    public Set<Service> getChildren() {
-//        return Collections.unmodifiableSet(this.children);
-//    }
-//
-//    public void setChildren(Set<Service> children) {
-//        this.children = children;
-//    }
-
-    public Service getParent() {
-        return parent;
+    @Override
+    public String toString() {
+        return "Service{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
-
-    public void setParent(Service parent) {
-        this.parent = parent;
-    }
-
-//    public Set<Subscriber> getSubscribers() {
-//        return subscribers;
-//    }
-//
-//    public void setSubscribers(Set<Subscriber> subscribers) {
-//        this.subscribers = subscribers;
-//    }
-
-
 }
