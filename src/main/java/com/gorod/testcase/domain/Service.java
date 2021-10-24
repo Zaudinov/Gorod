@@ -13,7 +13,7 @@ public class Service {
 
     private String name;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name="parent_id", referencedColumnName="service_id")
     private Set<Service> children;
 

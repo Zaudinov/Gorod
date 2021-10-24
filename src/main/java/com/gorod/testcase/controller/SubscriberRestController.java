@@ -41,6 +41,7 @@ public class SubscriberRestController {
         return ResponseEntity.ok(foundSubscriber);
     }
 
+
     @PostMapping
     public ResponseEntity<Subscriber> create(@RequestBody Subscriber subscriber) throws URISyntaxException {
         Subscriber createdSubscriber = subscriberService.create(subscriber);

@@ -25,3 +25,4 @@ CREATE TABLE IF NOT EXISTS subscriber_service(
                                                  FOREIGN KEY(subscriber_id) REFERENCES subscriber(subscriber_id) ,
                                                  FOREIGN KEY(service_id) REFERENCES service(service_id)
 );
+
