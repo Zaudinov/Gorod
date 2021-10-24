@@ -13,5 +13,5 @@ public interface SubscriberRepository extends CrudRepository<Subscriber, Long> {
     Set<Subscriber> findByServicesContains(Service service);
     SubscriberView getSubscriberById(Long id);
     @Query(value = "SELECT s FROM Subscriber s")
-    List<SubscriberView> getAllById();
+    List<SubscriberView> getAll();
 }
