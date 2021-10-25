@@ -5,15 +5,15 @@ import com.gorod.testcase.domain.Subscriber;
 import com.gorod.testcase.repository.ServiceRepository;
 import com.gorod.testcase.repository.SubscriberRepository;
 import com.gorod.testcase.repository.projections.ServiceWithoutChildren;
+import com.gorod.testcase.repository.projections.SubscriberView;
 import com.gorod.testcase.service.SubscriberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("/service")
@@ -27,10 +27,29 @@ public class ServiceRestController {
 
 
     @GetMapping("/user/{id}")
-    public Set<Subscriber> getSubscriberByServiceId(@PathVariable("id") int id){
-        return subscriberRepository.findByServicesContains(serviceRepository.findById(id).get());
+    public Set<SubscriberView> getSubscriberByServiceId(@PathVariable("id") int id){
+
+        return subscriberRepository.getByServicesContains(serviceRepository.findById(id).get());
 
     }
+
+    @GetMapping("/user/all/{id}")
+    public Set<SubscriberView> getSubscriberByServiceIdWithChildren(@PathVariable("id") int id){
+
+        Service service = serviceRepository.findById(id).get();
+        Iterable<Service> children = serviceRepository.findByParent(service.getId());
+        Set<Integer> childrenId = serviceRepository.findByParent(service.getId()).stream().map(service1 -> service.getId()).collect(Collectors.toSet());
+        Set<SubscriberView> result = new HashSet<>();
+
+        for (Integer childId:
+             childrenId) {
+            result.addAll(getSubscriberByServiceId(childId));
+        }
+
+        return result;
+
+    }
+
     @GetMapping
     public Iterable<Service> getHierarchy(){
         Iterable<Service> all = serviceRepository.findByParent(null);

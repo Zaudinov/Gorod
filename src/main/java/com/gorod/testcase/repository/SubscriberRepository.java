@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface SubscriberRepository extends CrudRepository<Subscriber, Long> {
-    Set<Subscriber> findByServicesContains(Service service);
+    Set<SubscriberView> getByServicesContains(Service service);
     SubscriberView getSubscriberById(Long id);
     @Query(value = "SELECT s FROM Subscriber s")
     List<SubscriberView> getAll();
