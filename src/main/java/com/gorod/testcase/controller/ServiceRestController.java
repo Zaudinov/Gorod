@@ -7,8 +7,12 @@ import com.gorod.testcase.repository.SubscriberRepository;
 import com.gorod.testcase.repository.projections.ServiceWithoutChildren;
 import com.gorod.testcase.repository.projections.SubscriberView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,9 +31,11 @@ public class ServiceRestController {
 
 
     @GetMapping("/user/{id}")
-    public Set<SubscriberView> getSubscriberByServiceId(@PathVariable("id") int id){
+    public Page<SubscriberView> getSubscriberByServiceId(
+            @PathVariable("id") int id,
+            @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable){
 
-        return subscriberRepository.getByServicesContains(serviceRepository.findById(id).get());
+        return subscriberRepository.getByServicesContains(serviceRepository.findById(id).get(), pageable);
 
     }
 
@@ -82,7 +88,9 @@ public class ServiceRestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Service> deleteServiceById(@PathVariable("id") int id, @RequestParam(name = "force",defaultValue = "false") boolean force) {
+    public ResponseEntity<Service> deleteServiceById(
+            @PathVariable("id") int id, @RequestParam(name = "force",defaultValue = "false") boolean force,
+            @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Service foundService;
         try {
             foundService = serviceRepository.findById(id).get();
@@ -90,7 +98,7 @@ public class ServiceRestController {
             return ResponseEntity.notFound().build();
         }
         if(!force) {
-            if (!foundService.getChildren().isEmpty() || !getSubscriberByServiceId(id).isEmpty()) {
+            if (!foundService.getChildren().isEmpty() || !getSubscriberByServiceId(id, pageable).isEmpty()) {
                 return ResponseEntity.status(409).build();
             }
         }

@@ -20,6 +20,10 @@ public class SubscriberService {
         return subscriberRepository.getAll(pageable);
     }
 
+    public SubscriberView getByAccount(String filter){
+        return subscriberRepository.getByAccount(filter);
+    }
+
     public SubscriberView getSubscriberById(Long id){
         return subscriberRepository.getSubscriberById(id);
     }

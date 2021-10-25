@@ -10,12 +10,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -31,10 +34,21 @@ public class SubscriberRestController {
     ServiceRepository serviceRepository;
 
     @GetMapping
-    public Page<SubscriberView> getAllSubscribers(
-            @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    public ResponseEntity<Page<SubscriberView>> getAllSubscribers(
+            @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) String filter
     ){
-        return subscriberService.getAll(pageable);
+        if(filter != null){
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", "/subscriber/filter/account/" + filter);
+            return new ResponseEntity(headers, HttpStatus.FOUND) ;
+        }
+        return ResponseEntity.ok(subscriberService.getAll(pageable));
+    }
+
+    @GetMapping("filter/account/{account}")
+    public SubscriberView getSubscriberByAccount(@PathVariable String account){
+        return subscriberService.getByAccount(account);
     }
 
     @GetMapping("/{id}")
