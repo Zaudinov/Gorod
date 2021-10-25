@@ -6,14 +6,14 @@ import com.gorod.testcase.repository.ServiceRepository;
 import com.gorod.testcase.repository.SubscriberRepository;
 import com.gorod.testcase.repository.projections.ServiceWithoutChildren;
 import com.gorod.testcase.repository.projections.SubscriberView;
-import com.gorod.testcase.service.SubscriberService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.projection.ProjectionFactory;
+import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("/service")
@@ -35,18 +35,29 @@ public class ServiceRestController {
 
     @GetMapping("/user/all/{id}")
     public Set<SubscriberView> getSubscriberByServiceIdWithChildren(@PathVariable("id") int id){
+        Deque<Service> servicesToRetrieveChildren = new LinkedList<>();
+        Set<Service> services = new HashSet<>();
+        Set<Subscriber> result = new HashSet<>();
 
-        Service service = serviceRepository.findById(id).get();
-        Iterable<Service> children = serviceRepository.findByParent(service.getId());
-        Set<Integer> childrenId = serviceRepository.findByParent(service.getId()).stream().map(service1 -> service.getId()).collect(Collectors.toSet());
-        Set<SubscriberView> result = new HashSet<>();
-
-        for (Integer childId:
-             childrenId) {
-            result.addAll(getSubscriberByServiceId(childId));
+        servicesToRetrieveChildren.add(serviceRepository.findById(id).get());
+//        Service service = serviceRepository.findById(id).get();
+        while(!servicesToRetrieveChildren.isEmpty()){
+            Service s = servicesToRetrieveChildren.poll();
+            services.add(s);
+            servicesToRetrieveChildren.addAll(s.getChildren());
+        }
+        for (Service s: services
+             ) {
+            result.addAll(subscriberRepository.findByServicesContains(s));
+        }
+        Set<SubscriberView> result2 = new HashSet<>();
+        ProjectionFactory pf = new SpelAwareProxyProjectionFactory();
+        for (Subscriber sub: result
+             ) {
+            result2.add(pf.createProjection(SubscriberView.class, sub));
         }
 
-        return result;
+        return result2;
 
     }
 
