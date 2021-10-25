@@ -4,6 +4,8 @@ import com.gorod.testcase.domain.Subscriber;
 import com.gorod.testcase.repository.SubscriberRepository;
 import com.gorod.testcase.repository.projections.SubscriberView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,8 +16,8 @@ public class SubscriberService {
     @Autowired
     SubscriberRepository subscriberRepository;
 
-    public List<Subscriber> getAll(){
-        return (List)subscriberRepository.getAll();
+    public Page<SubscriberView> getAll(Pageable pageable){
+        return subscriberRepository.getAll(pageable);
     }
 
     public SubscriberView getSubscriberById(Long id){

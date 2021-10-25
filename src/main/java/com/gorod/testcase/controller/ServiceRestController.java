@@ -40,7 +40,7 @@ public class ServiceRestController {
         Set<Subscriber> result = new HashSet<>();
 
         servicesToRetrieveChildren.add(serviceRepository.findById(id).get());
-//        Service service = serviceRepository.findById(id).get();
+
         while(!servicesToRetrieveChildren.isEmpty()){
             Service s = servicesToRetrieveChildren.poll();
             services.add(s);
