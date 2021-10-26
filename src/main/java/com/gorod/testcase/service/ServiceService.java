@@ -8,10 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class ServiceService {
@@ -29,6 +26,12 @@ public class ServiceService {
 
     }
 
+    public Iterable<com.gorod.testcase.domain.Service> getHierarchy(){
+        return serviceRepository.findByParent(null);
+    }
+
+
+
     public Set<com.gorod.testcase.domain.Service> getServiceWithChildrenDeepSet(int id) {
         Deque<com.gorod.testcase.domain.Service> servicesToRetrieveChildren = new LinkedList<>();
         Set<com.gorod.testcase.domain.Service> services = new HashSet<>();
@@ -41,5 +44,14 @@ public class ServiceService {
             servicesToRetrieveChildren.addAll(s.getChildren());
         }
         return services;
+    }
+
+    public void deleteService(int id){
+        List<Integer> idsToBeDeleted = new ArrayList<>();
+
+        for (com.gorod.testcase.domain.Service child: getServiceWithChildrenDeepSet(id)) {
+            idsToBeDeleted.add(child.getId());
+        }
+        serviceRepository.deleteAllById(idsToBeDeleted);
     }
 }

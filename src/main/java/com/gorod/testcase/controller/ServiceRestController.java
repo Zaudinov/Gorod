@@ -11,8 +11,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +37,14 @@ public class ServiceRestController {
     public Page<SubscriberView> getSubscriberByServiceId(
             @PathVariable("id") int id,
             @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable){
+        Service service;
+        try{
+            service = serviceRepository.findById(id).get();
+        }catch (NoSuchElementException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "no service with such id");
+        }
 
-        return subscriberRepository.getByServicesContains(serviceRepository.findById(id).get(), pageable);
+        return subscriberRepository.getByServicesContains(service, pageable);
 
     }
 
@@ -51,7 +59,7 @@ public class ServiceRestController {
 
     @GetMapping
     public Iterable<Service> getHierarchy(){
-        Iterable<Service> all = serviceRepository.findByParent(null);
+        Iterable<Service> all = serviceService.getHierarchy();
 
         return all;
     }
@@ -73,24 +81,22 @@ public class ServiceRestController {
     public ResponseEntity<Service> deleteServiceById(
             @PathVariable("id") int id, @RequestParam(name = "force",defaultValue = "false") boolean force,
             @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
+
         Service foundService;
+
         try {
             foundService = serviceRepository.findById(id).get();
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }
+
         if(!force) {
             if (!foundService.getChildren().isEmpty() || !getSubscriberByServiceId(id, pageable).isEmpty()) {
                 return ResponseEntity.status(409).build();
             }
         }
         else{
-            List<Integer> idsToBeDeleted = new ArrayList<>();
-
-            for (Service child: serviceService.getServiceWithChildrenDeepSet(foundService.getId())) {
-                idsToBeDeleted.add(child.getId());
-            }
-            serviceRepository.deleteAllById(idsToBeDeleted);
+            serviceService.deleteService(id);
         }
         return ResponseEntity.ok().build();
     }

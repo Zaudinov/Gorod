@@ -8,13 +8,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class SubscriberService {
 
     @Autowired
     SubscriberRepository subscriberRepository;
+
 
     public Page<SubscriberView> getAll(Pageable pageable){
         return subscriberRepository.getAll(pageable);
@@ -35,4 +34,7 @@ public class SubscriberService {
     public Subscriber create(Subscriber subscriber){
         return subscriberRepository.save(subscriber);
     }
+
+
+
 }
