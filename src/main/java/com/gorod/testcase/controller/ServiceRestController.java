@@ -1,23 +1,22 @@
 package com.gorod.testcase.controller;
 
 import com.gorod.testcase.domain.Service;
-import com.gorod.testcase.domain.Subscriber;
 import com.gorod.testcase.repository.ServiceRepository;
 import com.gorod.testcase.repository.SubscriberRepository;
 import com.gorod.testcase.repository.projections.ServiceWithoutChildren;
 import com.gorod.testcase.repository.projections.SubscriberView;
+import com.gorod.testcase.service.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.projection.ProjectionFactory;
-import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/service")
@@ -29,6 +28,8 @@ public class ServiceRestController {
     @Autowired
     ServiceRepository serviceRepository;
 
+    @Autowired
+    ServiceService serviceService;
 
     @GetMapping("/user/{id}")
     public Page<SubscriberView> getSubscriberByServiceId(
@@ -40,30 +41,11 @@ public class ServiceRestController {
     }
 
     @GetMapping("/user/all/{id}")
-    public Set<SubscriberView> getSubscriberByServiceIdWithChildren(@PathVariable("id") int id){
-        Deque<Service> servicesToRetrieveChildren = new LinkedList<>();
-        Set<Service> services = new HashSet<>();
-        Set<Subscriber> result = new HashSet<>();
-
-        servicesToRetrieveChildren.add(serviceRepository.findById(id).get());
-
-        while(!servicesToRetrieveChildren.isEmpty()){
-            Service s = servicesToRetrieveChildren.poll();
-            services.add(s);
-            servicesToRetrieveChildren.addAll(s.getChildren());
-        }
-        for (Service s: services
-             ) {
-            result.addAll(subscriberRepository.findByServicesContains(s));
-        }
-        Set<SubscriberView> result2 = new HashSet<>();
-        ProjectionFactory pf = new SpelAwareProxyProjectionFactory();
-        for (Subscriber sub: result
-             ) {
-            result2.add(pf.createProjection(SubscriberView.class, sub));
-        }
-
-        return result2;
+    public Page<SubscriberView> getSubscriberByServiceIdWithChildren(
+            @PathVariable("id") int id,
+            @PageableDefault(size = 20) Pageable pageable
+    ){
+        return serviceService.getSubscriberByServiceIdWithChildren(id, pageable);
 
     }
 

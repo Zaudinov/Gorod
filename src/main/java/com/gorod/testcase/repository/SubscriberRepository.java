@@ -17,6 +17,9 @@ public interface SubscriberRepository extends CrudRepository<Subscriber, Long> {
     Page<SubscriberView> getByServicesContains(Service service, Pageable pageable);
     SubscriberView getSubscriberById(Long id);
     Set<Subscriber> findByServicesContains(Service s);
+
     @Query(value = "SELECT s FROM Subscriber s")
     Page<SubscriberView> getAll(Pageable pageable);
+
+    Page<SubscriberView> getByIdIn(List<Long> ids, Pageable pageable);
 }
