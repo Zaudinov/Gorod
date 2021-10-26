@@ -86,8 +86,8 @@ public class ServiceRestController {
         }
         else{
             List<Integer> idsToBeDeleted = new ArrayList<>();
-            idsToBeDeleted.add(foundService.getId());
-            for (Service child: foundService.getChildren()) {
+
+            for (Service child: serviceService.getServiceWithChildrenDeepSet(foundService.getId())) {
                 idsToBeDeleted.add(child.getId());
             }
             serviceRepository.deleteAllById(idsToBeDeleted);

@@ -1,6 +1,5 @@
 package com.gorod.testcase.service;
 
-import com.gorod.testcase.domain.Subscriber;
 import com.gorod.testcase.repository.ServiceRepository;
 import com.gorod.testcase.repository.SubscriberRepository;
 import com.gorod.testcase.repository.projections.SubscriberView;
@@ -9,8 +8,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
 @Service
 public class ServiceService {
@@ -21,9 +22,16 @@ public class ServiceService {
     ServiceRepository serviceRepository;
 
     public Page<SubscriberView> getSubscriberByServiceIdWithChildren (int id, Pageable pageable){
+        Set<com.gorod.testcase.domain.Service> services = getServiceWithChildrenDeepSet(id);
+
+
+        return subscriberRepository.getSubscribers(services, pageable);
+
+    }
+
+    public Set<com.gorod.testcase.domain.Service> getServiceWithChildrenDeepSet(int id) {
         Deque<com.gorod.testcase.domain.Service> servicesToRetrieveChildren = new LinkedList<>();
         Set<com.gorod.testcase.domain.Service> services = new HashSet<>();
-        List<Long> subscribers = new ArrayList<>();
 
         servicesToRetrieveChildren.add(serviceRepository.findById(id).get());
 
@@ -32,9 +40,6 @@ public class ServiceService {
             services.add(s);
             servicesToRetrieveChildren.addAll(s.getChildren());
         }
-
-//        subscribers.addAll(serviceRepository.getSubscribersIds(servicesId));
-        return subscriberRepository.getSubscribers(services, pageable);
-//        return subscriberRepository.getByIdIn(subscribersIds, pageable);
+        return services;
     }
 }

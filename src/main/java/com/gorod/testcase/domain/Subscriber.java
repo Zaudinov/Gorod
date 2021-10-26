@@ -1,9 +1,6 @@
 package com.gorod.testcase.domain;
 
-import com.gorod.testcase.repository.projections.ServiceWithoutChildren;
-
 import javax.persistence.*;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
