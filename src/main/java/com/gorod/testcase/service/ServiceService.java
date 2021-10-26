@@ -22,19 +22,19 @@ public class ServiceService {
 
     public Page<SubscriberView> getSubscriberByServiceIdWithChildren (int id, Pageable pageable){
         Deque<com.gorod.testcase.domain.Service> servicesToRetrieveChildren = new LinkedList<>();
-        Set<Integer> servicesId = new HashSet<>();
+        Set<com.gorod.testcase.domain.Service> services = new HashSet<>();
         List<Long> subscribers = new ArrayList<>();
 
         servicesToRetrieveChildren.add(serviceRepository.findById(id).get());
 
         while(!servicesToRetrieveChildren.isEmpty()){
             com.gorod.testcase.domain.Service s = servicesToRetrieveChildren.poll();
-            servicesId.add(s.getId());
+            services.add(s);
             servicesToRetrieveChildren.addAll(s.getChildren());
         }
 
-        subscribers.addAll(serviceRepository.getSubscribersIds(servicesId));
-
-        return subscriberRepository.getByIdIn(subscribers, pageable);
+//        subscribers.addAll(serviceRepository.getSubscribersIds(servicesId));
+        return subscriberRepository.getSubscribers(services, pageable);
+//        return subscriberRepository.getByIdIn(subscribersIds, pageable);
     }
 }

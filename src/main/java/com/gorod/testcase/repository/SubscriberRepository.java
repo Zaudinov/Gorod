@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,5 +22,8 @@ public interface SubscriberRepository extends CrudRepository<Subscriber, Long> {
     @Query(value = "SELECT s FROM Subscriber s")
     Page<SubscriberView> getAll(Pageable pageable);
 
-    Page<SubscriberView> getByIdIn(List<Long> ids, Pageable pageable);
+    @Query(value = "SELECT DISTINCT s FROM Subscriber s INNER JOIN s.services as serv WHERE serv IN (:services)")
+    Page<SubscriberView> getSubscribers(@Param("services")Set<Service> s, Pageable pageable);
+
+    Page<SubscriberView> getByIdIn(Page<Long> ids, Pageable pageable);
 }
