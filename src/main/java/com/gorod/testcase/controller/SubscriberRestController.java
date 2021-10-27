@@ -2,7 +2,6 @@ package com.gorod.testcase.controller;
 
 import com.gorod.testcase.domain.Subscriber;
 import com.gorod.testcase.repository.ServiceRepository;
-import com.gorod.testcase.repository.SubscriberRepository;
 import com.gorod.testcase.repository.projections.SubscriberView;
 import com.gorod.testcase.service.SubscriberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +17,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/subscriber")
@@ -47,11 +43,16 @@ public class SubscriberRestController {
     }
 
     @GetMapping("filter/account/{account}")
-    public Page<SubscriberView> getSubscriberByAccount(
+    public ResponseEntity<Page<SubscriberView>> getSubscriberByAccount(
             @PathVariable String account,
             @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
     ){
-        return subscriberService.getByAccount(account, pageable);
+        Page<SubscriberView> subscribers = subscriberService.getByAccount(account, pageable);
+
+        if(subscribers == null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(subscribers);
     }
 
     @GetMapping("/{id}")
