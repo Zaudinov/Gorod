@@ -1,6 +1,7 @@
 package com.gorod.testcase.controller;
 
 import com.gorod.testcase.domain.Service;
+import com.gorod.testcase.exception.ServiceNotExistsException;
 import com.gorod.testcase.repository.ServiceRepository;
 import com.gorod.testcase.repository.SubscriberRepository;
 import com.gorod.testcase.repository.projections.ServiceWithoutChildren;
@@ -36,9 +37,7 @@ public class ServiceRestController {
             @PathVariable("id") int id,
             @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable){
         Service service = serviceService.findServiceById(id);
-        if(service == null){
-            ResponseEntity.notFound().build();
-        }
+
         Page<SubscriberView> subscribers = subscriberRepository.getByServicesContains(service, pageable);
 
         return ResponseEntity.ok(subscribers);
@@ -50,6 +49,8 @@ public class ServiceRestController {
             @PathVariable("id") int id,
             @PageableDefault(size = 20) Pageable pageable
     ){
+        Service service = serviceService.findServiceById(id);
+
         return serviceService.getSubscriberByServiceIdWithChildren(id, pageable);
 
     }
@@ -64,11 +65,10 @@ public class ServiceRestController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ServiceWithoutChildren> getServiceById(@PathVariable("id") int id){
-        ServiceWithoutChildren foundService;
-        try{
-            foundService = serviceRepository.getServiceById(id);
-        }catch (NoSuchElementException e){
-            return ResponseEntity.notFound().build();
+        ServiceWithoutChildren foundService = serviceRepository.getServiceById(id);
+
+        if (foundService == null){
+            throw new ServiceNotExistsException("There is no service with the id");
         }
 
         return ResponseEntity.ok(foundService);
@@ -80,10 +80,6 @@ public class ServiceRestController {
             @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
 
         Service foundService = serviceService.findServiceById(id);
-
-        if(foundService == null){
-            return ResponseEntity.notFound().build();
-        }
 
         if(!force) {
             Page<SubscriberView> subscribers = getSubscriberByServiceId(id, pageable).getBody();

@@ -1,6 +1,7 @@
 package com.gorod.testcase.controller;
 
 import com.gorod.testcase.domain.Subscriber;
+import com.gorod.testcase.exception.SubscriberNotExistsException;
 import com.gorod.testcase.repository.ServiceRepository;
 import com.gorod.testcase.repository.projections.SubscriberView;
 import com.gorod.testcase.service.SubscriberService;
@@ -31,7 +32,7 @@ public class SubscriberRestController {
 
     @GetMapping
     public ResponseEntity<Page<SubscriberView>> getAllSubscribers(
-            @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
+            @PageableDefault(size = 20, sort = {"account"}, direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(name = "filter", required = false) String filter
     ){
         if(filter != null){
@@ -49,8 +50,8 @@ public class SubscriberRestController {
     ){
         Page<SubscriberView> subscribers = subscriberService.getByAccount(account, pageable);
 
-        if(subscribers == null){
-            return ResponseEntity.notFound().build();
+        if(subscribers.getTotalElements() == 0){
+            throw new SubscriberNotExistsException("There are no subscribers with such account");
         }
         return ResponseEntity.ok(subscribers);
     }
@@ -58,10 +59,9 @@ public class SubscriberRestController {
     @GetMapping("/{id}")
     public ResponseEntity<SubscriberView> getSubscriberById(@PathVariable("id") Long id){
         SubscriberView foundSubscriber;
-        try{
-            foundSubscriber = subscriberService.getSubscriberById(id);
-        }catch (NoSuchElementException e){
-            return ResponseEntity.notFound().build();
+        foundSubscriber = subscriberService.getSubscriberById(id);
+        if (foundSubscriber == null){
+            throw new SubscriberNotExistsException("There is no subscriber with such id");
         }
 
         return ResponseEntity.ok(foundSubscriber);

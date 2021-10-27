@@ -27,9 +27,6 @@ public class SubscriberService {
         return subscriberRepository.getSubscriberById(id);
     }
 
-    public Subscriber read(Long id){
-        return subscriberRepository.findById(id).get();
-    }
 
     public Subscriber create(Subscriber subscriber){
         return subscriberRepository.save(subscriber);

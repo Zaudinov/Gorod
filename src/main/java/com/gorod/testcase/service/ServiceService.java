@@ -1,14 +1,13 @@
 package com.gorod.testcase.service;
 
+import com.gorod.testcase.exception.ServiceNotExistsException;
 import com.gorod.testcase.repository.ServiceRepository;
 import com.gorod.testcase.repository.SubscriberRepository;
 import com.gorod.testcase.repository.projections.SubscriberView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -19,6 +18,7 @@ public class ServiceService {
 
     @Autowired
     ServiceRepository serviceRepository;
+
 
     public Page<SubscriberView> getSubscriberByServiceIdWithChildren (int id, Pageable pageable){
         Set<com.gorod.testcase.domain.Service> services = getServiceWithChildrenDeepSet(id);
@@ -38,13 +38,11 @@ public class ServiceService {
         try{
             service = serviceRepository.findById(id).get();
         }catch (NoSuchElementException e){
-            return null;
+            throw new ServiceNotExistsException("There is no service with the id");
         }
         return service;
     }
-//    public Page<SubscriberView> getSubscriberByServiceId(int id, Pageable pageable){
-//
-//    }
+
 
     public Set<com.gorod.testcase.domain.Service> getServiceWithChildrenDeepSet(int id) {
         Deque<com.gorod.testcase.domain.Service> servicesToRetrieveChildren = new LinkedList<>();
