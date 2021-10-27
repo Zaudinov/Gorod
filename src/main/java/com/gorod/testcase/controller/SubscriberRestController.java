@@ -36,7 +36,7 @@ public class SubscriberRestController {
     @GetMapping
     public ResponseEntity<Page<SubscriberView>> getAllSubscribers(
             @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam(required = false) String filter
+            @RequestParam(name = "filter", required = false) String filter
     ){
         if(filter != null){
             HttpHeaders headers = new HttpHeaders();
@@ -47,8 +47,11 @@ public class SubscriberRestController {
     }
 
     @GetMapping("filter/account/{account}")
-    public SubscriberView getSubscriberByAccount(@PathVariable String account){
-        return subscriberService.getByAccount(account);
+    public Page<SubscriberView> getSubscriberByAccount(
+            @PathVariable String account,
+            @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return subscriberService.getByAccount(account, pageable);
     }
 
     @GetMapping("/{id}")

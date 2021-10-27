@@ -14,7 +14,7 @@ import java.util.Set;
 @Repository
 public interface SubscriberRepository extends CrudRepository<Subscriber, Long> {
 
-    SubscriberView getByAccount(String filter);
+    Page<SubscriberView> getByAccountLike(String filter, Pageable pageable);
 
     Page<SubscriberView> getByServicesContains(Service service, Pageable pageable);
 

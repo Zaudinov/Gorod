@@ -19,8 +19,8 @@ public class SubscriberService {
         return subscriberRepository.getAll(pageable);
     }
 
-    public SubscriberView getByAccount(String filter){
-        return subscriberRepository.getByAccount(filter);
+    public Page<SubscriberView> getByAccount(String filter, Pageable pageable){
+        return subscriberRepository.getByAccountLike(filter, pageable);
     }
 
     public SubscriberView getSubscriberById(Long id){
