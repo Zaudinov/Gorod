@@ -16,8 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -34,17 +32,16 @@ public class ServiceRestController {
     ServiceService serviceService;
 
     @GetMapping("/user/{id}")
-    public Page<SubscriberView> getSubscriberByServiceId(
+    public ResponseEntity<Page<SubscriberView>> getSubscriberByServiceId(
             @PathVariable("id") int id,
             @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable){
-        Service service;
-        try{
-            service = serviceRepository.findById(id).get();
-        }catch (NoSuchElementException e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "no service with such id");
+        Service service = serviceService.findServiceById(id);
+        if(service == null){
+            ResponseEntity.notFound().build();
         }
+        Page<SubscriberView> subscribers = subscriberRepository.getByServicesContains(service, pageable);
 
-        return subscriberRepository.getByServicesContains(service, pageable);
+        return ResponseEntity.ok(subscribers);
 
     }
 
@@ -82,16 +79,15 @@ public class ServiceRestController {
             @PathVariable("id") int id, @RequestParam(name = "force",defaultValue = "false") boolean force,
             @PageableDefault(size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Service foundService;
+        Service foundService = serviceService.findServiceById(id);
 
-        try {
-            foundService = serviceRepository.findById(id).get();
-        } catch (NoSuchElementException e) {
+        if(foundService == null){
             return ResponseEntity.notFound().build();
         }
 
         if(!force) {
-            if (!foundService.getChildren().isEmpty() || !getSubscriberByServiceId(id, pageable).isEmpty()) {
+            Page<SubscriberView> subscribers = getSubscriberByServiceId(id, pageable).getBody();
+            if (!foundService.getChildren().isEmpty() || !subscribers.isEmpty()) {
                 return ResponseEntity.status(409).build();
             }
         }

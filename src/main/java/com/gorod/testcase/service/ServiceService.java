@@ -6,7 +6,9 @@ import com.gorod.testcase.repository.projections.SubscriberView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -31,6 +33,18 @@ public class ServiceService {
     }
 
 
+    public com.gorod.testcase.domain.Service findServiceById(int id){
+        com.gorod.testcase.domain.Service service;
+        try{
+            service = serviceRepository.findById(id).get();
+        }catch (NoSuchElementException e){
+            return null;
+        }
+        return service;
+    }
+//    public Page<SubscriberView> getSubscriberByServiceId(int id, Pageable pageable){
+//
+//    }
 
     public Set<com.gorod.testcase.domain.Service> getServiceWithChildrenDeepSet(int id) {
         Deque<com.gorod.testcase.domain.Service> servicesToRetrieveChildren = new LinkedList<>();

@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS subscriber_service(
     subscriber_id bigint foreign key references subscriber(subscriber_id) on delete cascade on update cascade,
     service_id int foreign key references service(service_id) on delete cascade on update cascade
 );
+
 INSERT INTO SUBSCRIBER (SUBSCRIBER_ID, ACCOUNT, FIO) VALUES
 (1, '1235213', 'ZII'),
 (2, '2235213', 'PVV');
