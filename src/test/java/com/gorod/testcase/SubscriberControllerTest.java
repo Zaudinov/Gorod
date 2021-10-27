@@ -1,5 +1,8 @@
 package com.gorod.testcase;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gorod.testcase.domain.Service;
+import com.gorod.testcase.domain.Subscriber;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.HashSet;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -74,20 +79,23 @@ public class SubscriberControllerTest {
                 .andExpect(jsonPath("account").value("1000000"));
     }
     @Test
-    public void createNewSubscriber() throws Exception{
-        String subscriberJson = "{\"account\":\"1000002\", " +
-                "\"fio\":\"Печкин Владимир Дмитриевич\"}";
+    public void createNewSubscriberTest() throws Exception{
 
+        Subscriber expectedSubscriber = new Subscriber();
+        expectedSubscriber.setId(3L);
+        expectedSubscriber.setAccount("1000002");
+        expectedSubscriber.setFio("Печкин Владимир Дмитриевич");
+        HashSet<Service> services = new HashSet<>();
+        services.add(new Service(1, "Что-то"));
+        expectedSubscriber.setServices(services);
 
-//        Subscriber expectedSubscriber = new Subscriber();
-//        expectedSubscriber.setId(3L);
-//        expectedSubscriber.setAccount("1000002");
-//        expectedSubscriber.setFio("Печкин Владимир Дмитриевич");
+        String subscriberJson = new ObjectMapper().writeValueAsString(expectedSubscriber);
+        System.out.println(subscriberJson);
 
 
         mockMvc.perform(post("/subscriber").contentType(MediaType.APPLICATION_JSON_VALUE).content(subscriberJson))
         .andDo(print())
-        .andExpect(status().isOk())
+        .andExpect(status().is2xxSuccessful())
         .andExpect(jsonPath("$.account").value("1000002"))
         .andExpect(jsonPath("$.fio").value("Печкин Владимир Дмитриевич"));
     }
