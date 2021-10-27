@@ -32,4 +32,14 @@ public class EntityExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST,
                 LocalDateTime.now()), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(CannotDeleteServiceException.class)
+    public ResponseEntity<Object> handleServiceDeletingException(
+            CannotDeleteServiceException ex,
+            WebRequest request){
+        return new ResponseEntity<Object>(new ApiException(
+                ex.getMessage(),
+                HttpStatus.CONFLICT,
+                LocalDateTime.now()), HttpStatus.CONFLICT);
+    }
 }

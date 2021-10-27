@@ -1,6 +1,7 @@
 package com.gorod.testcase.controller;
 
 import com.gorod.testcase.domain.Service;
+import com.gorod.testcase.exception.CannotDeleteServiceException;
 import com.gorod.testcase.exception.ServiceNotExistsException;
 import com.gorod.testcase.repository.ServiceRepository;
 import com.gorod.testcase.repository.SubscriberRepository;
@@ -84,7 +85,9 @@ public class ServiceRestController {
         if(!force) {
             Page<SubscriberView> subscribers = getSubscriberByServiceId(id, pageable).getBody();
             if (!foundService.getChildren().isEmpty() || !subscribers.isEmpty()) {
-                return ResponseEntity.status(409).build();
+                throw new CannotDeleteServiceException
+                        ("Can't delete service if it has subscribers" +
+                                " or its child service does");
             }
         }
         else{
