@@ -66,4 +66,6 @@ public class ServiceService {
         }
         serviceRepository.deleteAllById(idsToBeDeleted);
     }
+
+
 }
