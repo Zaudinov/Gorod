@@ -122,5 +122,32 @@ public class SubscriberControllerTest {
                 .andExpect(content().json("3"));
     }
 
+    @Test
+    public void createNewSubscriberWithInvalidServicesTest() throws Exception{
+
+        Service service1 = new Service(1, "Какой-то сервис");
+        Service service2 = new Service(4, "Заведомо ложная информация");
+        Set<Service> serviceSet = new HashSet<>();
+        serviceSet.add(service1);
+        serviceSet.add(service2);
+
+
+        Subscriber expectedSubscriber = new Subscriber();
+        expectedSubscriber.setAccount("1000003");
+        expectedSubscriber.setFio("Печкин Дмитрий Владимирович");
+        expectedSubscriber.setServices(serviceSet);
+
+
+        String subscriberJson = new ObjectMapper().writeValueAsString(expectedSubscriber);
+        System.out.println(subscriberJson);
+
+
+        mockMvc.perform(post("/subscriber").contentType(MediaType.APPLICATION_JSON_VALUE).content(subscriberJson))
+                .andDo(print())
+                .andExpect(status().is4xxClientError())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("message").value("invalid service provided"));
+    }
+
 
 }
