@@ -99,17 +99,7 @@ public class SubscriberControllerTest {
     @Test
     public void createNewSubscriberWithValidServicesTest() throws Exception{
 
-        Service service1 = new Service(1, "Жилищно-коммунальные услуги");
-        Service service2 = new Service(4, "Горячяя Вода");
-        Set<Service> serviceSet = new HashSet<>();
-        serviceSet.add(service1);
-        serviceSet.add(service2);
-
-
-        Subscriber expectedSubscriber = new Subscriber();
-        expectedSubscriber.setAccount("1000003");
-        expectedSubscriber.setFio("Печкин Дмитрий Владимирович");
-        expectedSubscriber.setServices(serviceSet);
+        Subscriber expectedSubscriber = getTestSubscriber("Жилищно-коммунальные услуги", "Горячяя Вода");
 
 
         String subscriberJson = new ObjectMapper().writeValueAsString(expectedSubscriber);
@@ -125,17 +115,7 @@ public class SubscriberControllerTest {
     @Test
     public void createNewSubscriberWithInvalidServicesTest() throws Exception{
 
-        Service service1 = new Service(1, "Какой-то сервис");
-        Service service2 = new Service(4, "Заведомо ложная информация");
-        Set<Service> serviceSet = new HashSet<>();
-        serviceSet.add(service1);
-        serviceSet.add(service2);
-
-
-        Subscriber expectedSubscriber = new Subscriber();
-        expectedSubscriber.setAccount("1000003");
-        expectedSubscriber.setFio("Печкин Дмитрий Владимирович");
-        expectedSubscriber.setServices(serviceSet);
+        Subscriber expectedSubscriber = getTestSubscriber("Какой-то сервис", "Заведомо ложная информация");
 
 
         String subscriberJson = new ObjectMapper().writeValueAsString(expectedSubscriber);
@@ -149,5 +129,37 @@ public class SubscriberControllerTest {
                 .andExpect(jsonPath("message").value("invalid service provided"));
     }
 
+    @Test
+    public void createNewSubscriberWithInvalidIdTest() throws Exception{
+
+        Subscriber expectedSubscriber = getTestSubscriber("Жилищно-коммунальные услуги", "Горячяя Вода");
+        expectedSubscriber.setId(1L);
+
+
+        String subscriberJson = new ObjectMapper().writeValueAsString(expectedSubscriber);
+        System.out.println(subscriberJson);
+
+
+        mockMvc.perform(post("/subscriber").contentType(MediaType.APPLICATION_JSON_VALUE).content(subscriberJson))
+                .andDo(print())
+                .andExpect(status().is4xxClientError())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("message").value("There is an existing subscriber with provided id"));
+    }
+
+    public Subscriber getTestSubscriber(String s, String s2) {
+        Service service1 = new Service(1, s);
+        Service service2 = new Service(4, s2);
+        Set<Service> serviceSet = new HashSet<>();
+        serviceSet.add(service1);
+        serviceSet.add(service2);
+
+
+        Subscriber expectedSubscriber = new Subscriber();
+        expectedSubscriber.setAccount("1000003");
+        expectedSubscriber.setFio("Печкин Дмитрий Владимирович");
+        expectedSubscriber.setServices(serviceSet);
+        return expectedSubscriber;
+    }
 
 }
