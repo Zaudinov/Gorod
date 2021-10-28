@@ -15,6 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -79,15 +80,11 @@ public class SubscriberControllerTest {
                 .andExpect(jsonPath("account").value("1000000"));
     }
     @Test
-    public void createNewSubscriberTest() throws Exception{
+    public void createNewSubscriberWithoutServicesTest() throws Exception{
 
         Subscriber expectedSubscriber = new Subscriber();
-        expectedSubscriber.setId(3L);
         expectedSubscriber.setAccount("1000002");
         expectedSubscriber.setFio("Печкин Владимир Дмитриевич");
-        HashSet<Service> services = new HashSet<>();
-        services.add(new Service(1, "Что-то"));
-        expectedSubscriber.setServices(services);
 
         String subscriberJson = new ObjectMapper().writeValueAsString(expectedSubscriber);
         System.out.println(subscriberJson);
@@ -96,7 +93,34 @@ public class SubscriberControllerTest {
         mockMvc.perform(post("/subscriber").contentType(MediaType.APPLICATION_JSON_VALUE).content(subscriberJson))
         .andDo(print())
         .andExpect(status().is2xxSuccessful())
-        .andExpect(jsonPath("$.account").value("1000002"))
-        .andExpect(jsonPath("$.fio").value("Печкин Владимир Дмитриевич"));
+        .andExpect(content().json("3"));
     }
+
+    @Test
+    public void createNewSubscriberWithValidServicesTest() throws Exception{
+
+        Service service1 = new Service(1, "Жилищно-коммунальные услуги");
+        Service service2 = new Service(4, "Горячяя Вода");
+        Set<Service> serviceSet = new HashSet<>();
+        serviceSet.add(service1);
+        serviceSet.add(service2);
+
+
+        Subscriber expectedSubscriber = new Subscriber();
+        expectedSubscriber.setAccount("1000003");
+        expectedSubscriber.setFio("Печкин Дмитрий Владимирович");
+        expectedSubscriber.setServices(serviceSet);
+
+
+        String subscriberJson = new ObjectMapper().writeValueAsString(expectedSubscriber);
+        System.out.println(subscriberJson);
+
+
+        mockMvc.perform(post("/subscriber").contentType(MediaType.APPLICATION_JSON_VALUE).content(subscriberJson))
+                .andDo(print())
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().json("3"));
+    }
+
+
 }

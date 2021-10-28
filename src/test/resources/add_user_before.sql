@@ -1,5 +1,6 @@
 DELETE FROM subscriber_service;
 DELETE FROM subscriber;
+TRUNCATE TABLE subscriber RESTART IDENTITY;
 DELETE FROM service;
 
 INSERT INTO subscriber (subscriber_id, account, fio)

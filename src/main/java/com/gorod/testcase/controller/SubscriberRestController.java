@@ -69,19 +69,19 @@ public class SubscriberRestController {
 
 
     @PostMapping
-    public ResponseEntity<Subscriber> create(@RequestBody Subscriber subscriber) throws URISyntaxException {
-        Subscriber createdSubscriber = subscriberService.create(subscriber);
+    public ResponseEntity<Long> create(@RequestBody Subscriber subscriber) throws URISyntaxException {
+        Long createdSubscriberId = subscriberService.create(subscriber);
 
-        if(createdSubscriber == null){
+        if(createdSubscriberId == null){
             return ResponseEntity.notFound().build();
         }
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(createdSubscriber.getId())
+                .buildAndExpand(createdSubscriberId)
                 .toUri();
 
         return ResponseEntity.created(uri)
-                .body(createdSubscriber);
+                .body(createdSubscriberId);
     }
 
 }

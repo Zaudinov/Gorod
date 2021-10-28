@@ -42,4 +42,13 @@ public class EntityExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.CONFLICT,
                 LocalDateTime.now()), HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(SubscriberAlreadyExistsException.class)
+    public ResponseEntity<Object> handleSubscriberCreatingException(
+            SubscriberAlreadyExistsException ex,WebRequest request){
+        return new ResponseEntity<Object>(new ApiException(
+                ex.getMessage(),
+                HttpStatus.CONFLICT,
+                LocalDateTime.now()), HttpStatus.CONFLICT);
+    }
 }
